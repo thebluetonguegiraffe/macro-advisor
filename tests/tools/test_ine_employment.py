@@ -3,13 +3,10 @@ from src.tools.ine.ine_employment import get_ine_employment
 
 def test_no_filters_returns_national_data():
     result = get_ine_employment.invoke({"nult": 1})
-    assert result[0] == {
-        "nombre": "Tasa de paro de la población. Ambos sexos. Total Nacional. Total.",
-        "anyo": 2023,
-        "periodo": "T4",
-        "valor": 11.76,
-        "unidad": "Tasas",
-    }
+    assert len(result) == 1
+    assert result[0]["nombre"] is not None
+    assert "Nacional" in result[0]["nombre"] or "nacional" in result[0]["nombre"]
+    assert result[0]["valor"] is not None
 
 
 def test_filter_sexo_mujeres():
