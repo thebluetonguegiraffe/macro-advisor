@@ -25,7 +25,7 @@ class ResearchAgent:
         llm = init_chat_model(
             model=os.getenv("MODEL"),
             model_provider="openai",
-            api_key=os.getenv("GITHUB_TOKEN"),
+            api_key=os.getenv("OPENAI_GH_TOKEN"),
             base_url="https://models.github.ai/inference",
         )
         structured_tools = [t for t in all_tools if t.name != "search_macro_news"]
