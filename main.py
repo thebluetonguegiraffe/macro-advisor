@@ -25,7 +25,6 @@ def run():
 
         last = result["messages"][-1].content
         print(f"\n🤖  {last}")
-        print(f"    [intent: {result.get('intent', 'N/A')}]\n")
 
         history = result["messages"]
 

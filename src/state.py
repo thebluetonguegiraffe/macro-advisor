@@ -5,6 +5,9 @@ from typing_extensions import TypedDict
 
 class AgentState(TypedDict):
     messages: Annotated[list, add_messages]
+
+    called_tools: list[str] | None
+
     intent: str | None
     research_output: dict[str, Any] | None
     # Memory hooks — vacíos en Phase 1, se activan en Phase 2

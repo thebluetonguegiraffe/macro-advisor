@@ -41,12 +41,20 @@ def _build_employment_description() -> str:
 
 @tool(description=_build_employment_description())
 def get_ine_employment(
-    nult: int = 1,
+    nult: int = 4,
     filters: list[str] | None = None,
     date_from: str | None = None,
     date_to: str | None = None,
 ) -> list[dict]:
     url = f"{INE_BASE_URL}/DATOS_TABLA/4247"
+
+    if not filters:
+        filters = [
+            "18:454",  # all sexes
+            "356:15668",  # all ages
+            "349:16473",  # all Spain
+        ]
+
     params = [("nult", nult), ("tip", "A")]
     if filters:
         for f in filters:

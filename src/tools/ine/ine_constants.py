@@ -75,7 +75,7 @@ INE_EPA_FILTERS = {
 }
 
 
-def _parse_ine_response(data: list[dict]) -> list[dict]:
+def _parse_ine_response(data: list[dict], max_rows: int = 10) -> list[dict]:
     result = []
     for serie in data:
         for point in serie.get("Data", []):
@@ -88,4 +88,4 @@ def _parse_ine_response(data: list[dict]) -> list[dict]:
                     "unidad": serie.get("T3_Unidad", "").strip(),
                 }
             )
-    return result
+    return result[:max_rows]  # guardrail
