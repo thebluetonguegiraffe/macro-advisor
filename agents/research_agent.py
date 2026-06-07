@@ -6,18 +6,7 @@ from langsmith import traceable
 from src.state import AgentState
 from src.tools import all_tools, search_macro_news
 
-RESEARCH_SYSTEM_PROMPT = (
-    "You are a macroeconomic research agent. "
-    "NEVER answer from memory — ALWAYS use the available tools "
-    "to fetch up-to-date data before responding. "
-    "If the question is about an economic indicator (inflation, unemployment, interest rates, "
-    "GDP, housing), you MUST call the corresponding tool. "
-    "TOOL SELECTION RULES: "
-    "- For Spain specifically, ALWAYS prefer INE tools (get_ine_housing, get_ine_employment) "
-    "over Eurostat — they are more granular and up-to-date. "
-    "- For Germany, France, Italy, UK or other EU countries, use Eurostat tools. "
-    "- For eurozone-wide data, use ECB tools. "
-)
+from src.prompts import load_prompt
 
 
 class ResearchAgent:
@@ -27,6 +16,7 @@ class ResearchAgent:
             model_provider="openai",
             api_key=os.getenv("OPENAI_GH_TOKEN"),
             base_url="https://models.github.ai/inference",
+            temperature=0,
         )
         structured_tools = [t for t in all_tools if t.name != "search_macro_news"]
         self.llm_with_tools = llm.bind_tools(structured_tools)
@@ -34,6 +24,7 @@ class ResearchAgent:
         self.llm_with_fallback = llm.bind_tools([search_macro_news])
 
         self.tools_by_name = {t.name: t for t in all_tools}
+        self.system_prompt = load_prompt("research-agent-base")
 
     @traceable(name="research_agent_node")
     def research_agent_node(self, state: AgentState) -> dict:
@@ -48,7 +39,7 @@ class ResearchAgent:
         return {"research_output": {"summary": response.content, "called_tools": called_tools}}
 
     def _run_tool_loop(self, messages: list, llm) -> tuple:
-        messages = [SystemMessage(content=RESEARCH_SYSTEM_PROMPT)] + list(messages)
+        messages = [SystemMessage(content=self.system_prompt)] + list(messages)
         called_tools = []
 
         while True:
