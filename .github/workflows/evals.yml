@@ -1,9 +1,6 @@
 name: Evals
 
 on:
-  push:
-    branches:
-      - master
   pull_request:
     branches:
       - master
@@ -28,6 +25,7 @@ jobs:
         run: uv sync
 
       - name: Run evals
+        id: evals
         env:
           OPENAI_GH_TOKEN: ${{ secrets.OPENAI_GH_TOKEN }}
           MODEL: ${{ secrets.MODEL }}
@@ -35,3 +33,15 @@ jobs:
           LANGCHAIN_TRACING_V2: "false"
         run: |
           uv run pytest tests/evals/ -v --tb=short
+
+      - name: Re-run evals with tracing on failure
+        if: failure()
+        env:
+          OPENAI_GH_TOKEN: ${{ secrets.OPENAI_GH_TOKEN }}
+          MODEL: ${{ secrets.MODEL }}
+          TAVILY_API_KEY: ${{ secrets.TAVILY_API_KEY }}
+          LANGCHAIN_TRACING_V2: "true"
+          LANGSMITH_API_KEY: ${{ secrets.LANGSMITH_API_KEY }}
+          LANGCHAIN_PROJECT: "macro_advisor_ci"
+        run: |
+          uv run pytest tests/evals/ -v --tb=short --last-failed
