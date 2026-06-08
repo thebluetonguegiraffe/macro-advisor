@@ -27,6 +27,7 @@ class ResearchAgent:
             model_provider="openai",
             api_key=os.getenv("OPENAI_GH_TOKEN"),
             base_url="https://models.github.ai/inference",
+            temperature=0,
         )
         structured_tools = [t for t in all_tools if t.name != "search_macro_news"]
         self.llm_with_tools = llm.bind_tools(structured_tools)
